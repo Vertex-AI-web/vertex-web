@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { Menu, X } from "lucide-react";
 import ParticlesBackground from "./components/ParticlesBackground.jsx";
+import ContactModal from "./components/ContactModal.jsx";
 
 const sections = ["inicio", "servicios", "testimonios", "casos", "contacto"];
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,46 +30,10 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const extraServices = [
-    "Agentes de onboarding",
-    "Asistentes de RRHH",
-    "Agentes de monitoreo",
-    "Bots de WhatsApp",
-    "Agentes para ecommerce",
-    "Agentes de ventas",
-    "Agentes de soporte",
-  ];
-
-  const caseStudies = [
-    {
-      title: "WhatsApp Bot para inmobiliarias",
-      desc: "Publicá propiedades y permití que los clientes las encuentren fácilmente por WhatsApp.",
-    },
-    {
-      title: "Agentes multicanal para atención al cliente",
-      desc: "Soluciones que transforman completamente la forma en que tu negocio interactúa con tus usuarios.",
-    },
-    {
-      title: "Agente interno para generación de reportes",
-      desc: "Automatización de reportes periódicos para reducir carga operativa.",
-    },
-    {
-      title: "Asistente de RRHH para entrevistas",
-      desc: "Filtra candidatos automáticamente y agenda entrevistas según disponibilidad.",
-    },
-    {
-      title: "Agente de ecommerce con IA generativa",
-      desc: "Recomienda productos en tiempo real a los usuarios usando análisis de intención.",
-    },
-  ];
-
   return (
     <HelmetProvider>
       <div className="relative min-h-screen">
-        {/* Partículas como fondo fijo */}
         <ParticlesBackground />
-
-        {/* Metadatos SEO */}
         <Helmet>
           <title>Vertex | Agentes IA para tu empresa</title>
           <meta
@@ -75,29 +43,61 @@ export default function App() {
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Helmet>
 
-        {/* Navbar fijo */}
+        {/* Navbar */}
         <nav
           className={`fixed top-0 left-0 right-0 z-30 px-6 py-4 transition-colors duration-500 backdrop-blur-xl shadow-lg ${
             scrolled ? "bg-[#121214]/90 border-b border-[#2a2a2e]" : "bg-transparent"
           }`}
         >
-          <ul className="flex justify-center space-x-8 text-white font-medium max-w-7xl mx-auto">
-            {sections.map((id) => (
-              <li key={id}>
+          <div className="flex items-center justify-between max-w-7xl mx-auto text-white">
+            <div className="text-xl font-bold tracking-widest">VERTEX</div>
+            <ul className="hidden md:flex space-x-8 font-medium">
+              {sections.map((id) => (
+                <li key={id}>
+                  <a
+                    href={`#${id}`}
+                    className={`transition-colors px-3 py-1 rounded-md ${
+                      activeSection === id ? "text-[#00BFFF] font-semibold" : "hover:text-[#00BFFF]"
+                    }`}
+                  >
+                    {id.charAt(0).toUpperCase() + id.slice(1)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <button
+              className="md:hidden text-white"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Abrir menú"
+            >
+              {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+          </div>
+
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="md:hidden absolute top-full left-0 right-0 bg-[#121214]/95 border-t border-[#2a2a2e] text-white font-medium px-6 py-4 space-y-4"
+            >
+              {sections.map((id) => (
                 <a
+                  key={id}
                   href={`#${id}`}
-                  className={`transition-colors px-3 py-1 rounded-md ${
+                  className={`block px-3 py-2 rounded-md transition-colors ${
                     activeSection === id ? "text-[#00BFFF] font-semibold" : "hover:text-[#00BFFF]"
                   }`}
+                  onClick={() => setMenuOpen(false)}
                 >
                   {id.charAt(0).toUpperCase() + id.slice(1)}
                 </a>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </motion.div>
+          )}
         </nav>
 
-        {/* Contenido principal */}
+        {/* Main content */}
         <main
           className="pt-24"
           style={{
@@ -127,12 +127,12 @@ export default function App() {
                 Automatizá tareas, mejorá tu productividad y hacé crecer tu negocio con{" "}
                 <span className="text-[#00BFFF] font-semibold">Vertex</span>.
               </p>
-              <a
-                href="#contacto"
-                className="bg-[#00BFFF] hover:bg-blue-400 text-white font-semibold py-4 px-10 rounded-xl shadow-xl transition duration-300 inline-block"
+              <button
+                onClick={() => setModalOpen(true)}
+                className="bg-[#00BFFF] hover:bg-blue-400 text-white font-semibold py-4 px-10 rounded-xl shadow-xl transition duration-300"
               >
                 Quiero un diagnóstico gratis
-              </a>
+              </button>
             </motion.div>
           </header>
 
@@ -174,24 +174,6 @@ export default function App() {
                   </p>
                 </motion.article>
               ))}
-            </div>
-
-            {/* Carrusel infinito */}
-            <div className="overflow-hidden relative w-full">
-              <div
-                className="flex animate-marquee space-x-10 whitespace-nowrap text-white text-xl font-medium"
-                aria-label="Carrusel infinito de servicios"
-              >
-                {[...extraServices, ...extraServices].map((s, i) => (
-                  <div
-                    key={i}
-                    className="bg-[#18181B] px-6 py-3 rounded-full border border-[#2a2a2e] text-[#00BFFF] shadow-sm select-none"
-                    role="listitem"
-                  >
-                    {s}
-                  </div>
-                ))}
-              </div>
             </div>
           </section>
 
@@ -242,7 +224,28 @@ export default function App() {
           >
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Casos de Uso con Agentes IA</h2>
             <div className="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto">
-              {caseStudies.map((c, i) => (
+              {[
+                {
+                  title: "WhatsApp Bot para inmobiliarias",
+                  desc: "Publicá propiedades y permití que los clientes las encuentren fácilmente por WhatsApp.",
+                },
+                {
+                  title: "Agentes multicanal para atención al cliente",
+                  desc: "Soluciones que transforman completamente la forma en que tu negocio interactúa con tus usuarios.",
+                },
+                {
+                  title: "Agente interno para generación de reportes",
+                  desc: "Automatización de reportes periódicos para reducir carga operativa.",
+                },
+                {
+                  title: "Asistente de RRHH para entrevistas",
+                  desc: "Filtra candidatos automáticamente y agenda entrevistas según disponibilidad.",
+                },
+                {
+                  title: "Agente de ecommerce con IA generativa",
+                  desc: "Recomienda productos en tiempo real a los usuarios usando análisis de intención.",
+                },
+              ].map((c, i) => (
                 <motion.article
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
@@ -274,12 +277,12 @@ export default function App() {
               <p className="text-gray-300 mb-10 leading-relaxed">
                 Contanos tus desafíos. Creamos soluciones automáticas a medida. Desde agentes de atención hasta procesos internos inteligentes.
               </p>
-              <a
-                href="mailto:info@vertex.com"
-                className="inline-block bg-[#00BFFF] hover:bg-blue-400 text-white font-semibold py-4 px-8 rounded-xl shadow-md transition duration-300"
+              <button
+                onClick={() => setModalOpen(true)}
+                className="bg-[#00BFFF] hover:bg-blue-400 text-white font-semibold py-4 px-8 rounded-xl shadow-md transition duration-300"
               >
                 Escribinos
-              </a>
+              </button>
             </motion.div>
           </section>
 
@@ -290,16 +293,8 @@ export default function App() {
           </footer>
         </main>
 
-        {/* Estilos para el carrusel marquee */}
-        <style>{`
-          @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-marquee {
-            animation: marquee 20s linear infinite;
-          }
-        `}</style>
+        {/* Modal */}
+        <ContactModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </HelmetProvider>
   );
