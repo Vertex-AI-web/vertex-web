@@ -1,8 +1,8 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// Cambia "vertex-web" por el nombre de tu repo si es distinto
 export default defineConfig({
-  base: '/vertex-web/', // O el nombre del repo
   plugins: [react()],
-})
+  base: '/vertex-web/', // nombre del repo
+});
